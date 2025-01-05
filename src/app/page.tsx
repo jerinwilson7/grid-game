@@ -84,7 +84,7 @@ function Home() {
     <Suspense>
       <main className="h-screen bg-black flex justify-center items-center">
         <div className="flex flex-col items-center gap-4">
-          <div className="flex flex-col gap-2">
+          <form onSubmit={handleSubmit} className="flex flex-col gap-2">
             <input
               type="number"
               onChange={(e) => setGridSize(Number(e.target.value))}
@@ -96,10 +96,10 @@ function Home() {
                 The size of the grid should be greater than 1 and less than 10
               </span>
             )}
-          </div>
+          </form>
           <button
+          type="submit"
             className="bg-yellow-500 h-10 w-[250px] text-black font-semibold rounded-md"
-            onClick={handleSubmit}
           >
             Draw Grid
           </button>
