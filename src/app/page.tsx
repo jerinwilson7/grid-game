@@ -7,6 +7,8 @@ function Home() {
   const [grid, setGrid] = useState<string[][]>([]);
   const [shouldShowGrid, setShouldShowGrid] = useState(false);
   const [errorWarning, setErrorWarning] = useState(false);
+  const [previousClickTime, setPreviousClickTime] = useState(0);
+  const [isDoubleClick, setIsDoubleClick] = useState(false);
 
   const drawGrid = (size: number): string[][] => {
     return Array(size)
@@ -21,43 +23,54 @@ function Home() {
   }, [gridSize]);
 
   const handleCellClick = (rowIndex: number, colIndex: number) => {
-    if (
-      grid[rowIndex][colIndex] === "bg-gray-400" ||
-      grid[rowIndex][colIndex] === "bg-green-400"
-    ) {
-      return;
+    const currentTime = Date.now();
+    if (currentTime - previousClickTime < 300) {
+      setIsDoubleClick(true);
+    } else {
+      setIsDoubleClick(false);
     }
 
-    const newGrid = grid.map((row) => [...row]);
+    setPreviousClickTime(currentTime);
 
-    for (let i = 0; i < gridSize; i++) {
-      newGrid[rowIndex][i] = "bg-gray-400";
+    if (isDoubleClick) {
+      if (
+        grid[rowIndex][colIndex] === "bg-gray-400" ||
+        grid[rowIndex][colIndex] === "bg-green-400"
+      ) {
+        return;
+      }
+
+      const newGrid = grid.map((row) => [...row]);
+
+      for (let i = 0; i < gridSize; i++) {
+        newGrid[rowIndex][i] = "bg-gray-400";
+      }
+
+      for (let i = 0; i < gridSize; i++) {
+        newGrid[i][colIndex] = "bg-gray-400";
+      }
+
+      for (let i = 0; i < gridSize; i++) {
+        if (rowIndex + i < gridSize && colIndex + i < gridSize) {
+          newGrid[rowIndex + i][colIndex + i] = "bg-gray-400";
+        }
+
+        if (rowIndex + i < gridSize && colIndex - i >= 0) {
+          newGrid[rowIndex + i][colIndex - i] = "bg-gray-400";
+        }
+
+        if (rowIndex - i >= 0 && colIndex + i < gridSize) {
+          newGrid[rowIndex - i][colIndex + i] = "bg-gray-400";
+        }
+
+        if (rowIndex - i >= 0 && colIndex - i >= 0) {
+          newGrid[rowIndex - i][colIndex - i] = "bg-gray-400";
+        }
+      }
+
+      newGrid[rowIndex][colIndex] = "bg-green-400";
+      setGrid(newGrid);
     }
-
-    for (let i = 0; i < gridSize; i++) {
-      newGrid[i][colIndex] = "bg-gray-400";
-    }
-
-    for (let i = 0; i < gridSize; i++) {
-      if (rowIndex + i < gridSize && colIndex + i < gridSize) {
-        newGrid[rowIndex + i][colIndex + i] = "bg-gray-400";
-      }
-
-      if (rowIndex + i < gridSize && colIndex - i >= 0) {
-        newGrid[rowIndex + i][colIndex - i] = "bg-gray-400";
-      }
-
-      if (rowIndex - i >= 0 && colIndex + i < gridSize) {
-        newGrid[rowIndex - i][colIndex + i] = "bg-gray-400";
-      }
-
-      if (rowIndex - i >= 0 && colIndex - i >= 0) {
-        newGrid[rowIndex - i][colIndex - i] = "bg-gray-400";
-      }
-    }
-
-    newGrid[rowIndex][colIndex] = "bg-green-400";
-    setGrid(newGrid);
   };
 
   const handleSubmit = (e: React.FormEvent) => {
