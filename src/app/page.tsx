@@ -124,7 +124,7 @@ function Home() {
         {shouldShowGrid && (
           <div className="fixed inset-0 bg-black z-50 min-h-screen flex items-center justify-center">
             <div
-              className="h-10 hover:cursor-pointer w-10 bg-red-400 text-white absolute top-3 right-3 text-center flex justify-center items-center font-bold text-lg"
+              className="h-10 hover:cursor-pointer w-10 rounded-md bg-red-400 text-white absolute top-3 right-3 text-center flex justify-center items-center font-bold text-lg"
               onClick={handleClose}
             >
               X
