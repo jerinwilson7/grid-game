@@ -1,101 +1,144 @@
-import Image from "next/image";
+"use client";
 
-export default function Home() {
+import React, { Suspense, useState, useEffect } from "react";
+
+function Home() {
+  const [gridSize, setGridSize] = useState<number>(0);
+  const [grid, setGrid] = useState<string[][]>([]);
+  const [shouldShowGrid, setShouldShowGrid] = useState(false);
+  const [errorWarning, setErrorWarning] = useState(false);
+
+  const drawGrid = (size: number): string[][] => {
+    return Array(size)
+      .fill(null)
+      .map(() => Array(size).fill("bg-yellow-400"));
+  };
+
+  useEffect(() => {
+    if (gridSize >= 2 && gridSize <= 20) {
+      setGrid(drawGrid(gridSize));
+    }
+  }, [gridSize]);
+
+  const handleCellClick = (rowIndex: number, colIndex: number) => {
+    if (
+      grid[rowIndex][colIndex] === "bg-gray-400" ||
+      grid[rowIndex][colIndex] === "bg-green-400"
+    ) {
+      return;
+    }
+
+    const newGrid = grid.map((row) => [...row]);
+
+    for (let i = 0; i < gridSize; i++) {
+      newGrid[rowIndex][i] = "bg-gray-400";
+    }
+
+    for (let i = 0; i < gridSize; i++) {
+      newGrid[i][colIndex] = "bg-gray-400";
+    }
+
+    for (let i = 0; i < gridSize; i++) {
+      if (rowIndex + i < gridSize && colIndex + i < gridSize) {
+        newGrid[rowIndex + i][colIndex + i] = "bg-gray-400";
+      }
+
+      if (rowIndex + i < gridSize && colIndex - i >= 0) {
+        newGrid[rowIndex + i][colIndex - i] = "bg-gray-400";
+      }
+
+      if (rowIndex - i >= 0 && colIndex + i < gridSize) {
+        newGrid[rowIndex - i][colIndex + i] = "bg-gray-400";
+      }
+
+      if (rowIndex - i >= 0 && colIndex - i >= 0) {
+        newGrid[rowIndex - i][colIndex - i] = "bg-gray-400";
+      }
+    }
+
+    newGrid[rowIndex][colIndex] = "bg-green-400";
+    setGrid(newGrid);
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setErrorWarning(false);
+    if (gridSize < 2 || gridSize > 10) {
+      setErrorWarning(true);
+      return;
+    }
+    setGrid(drawGrid(gridSize));
+    setShouldShowGrid(true);
+  };
+
+  const handleClose = () => {
+    setShouldShowGrid(false);
+    setGrid([]);
+  };
+
+  const handleResetGrid = () => {
+    setGrid(drawGrid(gridSize));
+  };
+
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
-
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
+    <Suspense>
+      <main className="h-screen bg-black flex justify-center items-center">
+        <div className="flex flex-col items-center gap-4">
+          <div className="flex flex-col gap-2">
+            <input
+              type="number"
+              onChange={(e) => setGridSize(Number(e.target.value))}
+              placeholder="Enter the size of the grid"
+              className="rounded-md px-3 py-3 w-72 md:w-[345px] bg-white border-white font-semibold text-black"
             />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+            {errorWarning && (
+              <span className="text-red-500 max-w-72 md:max-w-[345px]  font-semibold text-xs md:text-sm">
+                The size of the grid should be greater than 1 and less than 10
+              </span>
+            )}
+          </div>
+          <button
+            className="bg-yellow-500 h-10 w-[250px] text-black font-semibold rounded-md"
+            onClick={handleSubmit}
           >
-            Read our docs
-          </a>
+            Draw Grid
+          </button>
         </div>
+
+        {shouldShowGrid && (
+          <div className="fixed inset-0 bg-black z-50 min-h-screen flex items-center justify-center">
+            <div
+              className="h-10 hover:cursor-pointer w-10 bg-red-400 text-white absolute top-3 right-3 text-center flex justify-center items-center font-bold text-lg"
+              onClick={handleClose}
+            >
+              X
+            </div>
+            <div className="flex flex-col gap-4 items-center justify-center">
+              <div>
+                {grid.map((row, rowIndex) => (
+                  <div key={rowIndex} className="flex">
+                    {row.map((bgColor, colIndex) => (
+                      <div
+                        key={colIndex}
+                        className={`${bgColor} border-black border-2 p-4 md:p-8 rounded-md ${bgColor === 'bg-yellow-400' ? 'cursor-pointer' : 'cursor-not-allowed'}`}
+                        onClick={() => handleCellClick(rowIndex, colIndex)}
+                      ></div>
+                    ))}
+                  </div>
+                ))}
+              </div>
+              <button
+                className="bg-yellow-500 h-10 w-[250px] text-black font-semibold rounded-md"
+                onClick={handleResetGrid}
+              >
+                Reset Grid
+              </button>
+            </div>
+          </div>
+        )}
       </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
+    </Suspense>
   );
 }
+
+export default Home;
