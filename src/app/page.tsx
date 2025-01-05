@@ -83,8 +83,11 @@ function Home() {
   return (
     <Suspense>
       <main className="h-screen bg-black flex justify-center items-center">
-        <div className="flex flex-col items-center gap-4">
-          <form onSubmit={handleSubmit} className="flex flex-col gap-2">
+        <form
+          onSubmit={handleSubmit}
+          className="flex flex-col items-center gap-4"
+        >
+          <div className="flex flex-col gap-2">
             <input
               type="number"
               onChange={(e) => setGridSize(Number(e.target.value))}
@@ -96,14 +99,14 @@ function Home() {
                 The size of the grid should be greater than 1 and less than 10
               </span>
             )}
-          </form>
+          </div>
           <button
-          type="submit"
+            type="submit"
             className="bg-yellow-500 h-10 w-[250px] text-black font-semibold rounded-md"
           >
             Draw Grid
           </button>
-        </div>
+        </form>
 
         {shouldShowGrid && (
           <div className="fixed inset-0 bg-black z-50 min-h-screen flex items-center justify-center">
@@ -120,7 +123,11 @@ function Home() {
                     {row.map((bgColor, colIndex) => (
                       <div
                         key={colIndex}
-                        className={`${bgColor} border-black border-2 p-4 md:p-8 rounded-md ${bgColor === 'bg-yellow-400' ? 'cursor-pointer' : 'cursor-not-allowed'}`}
+                        className={`${bgColor} border-black border-2 p-4 md:p-8 rounded-md ${
+                          bgColor === "bg-yellow-400"
+                            ? "cursor-pointer"
+                            : "cursor-not-allowed"
+                        }`}
                         onClick={() => handleCellClick(rowIndex, colIndex)}
                       ></div>
                     ))}
